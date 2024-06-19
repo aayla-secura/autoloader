@@ -40,7 +40,7 @@ namespaces.
 ## Changelog
 
 **v1.1.3**
-* Minor updates to documentation.
+* Added support for namespaces, case type conversions and file prefixes.
 
 **v1.1.2**
 * Minor fixes to README.md.
