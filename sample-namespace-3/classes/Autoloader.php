@@ -77,7 +77,7 @@ class Autoloader
      * A placeholder to hold the file iterator so that directory traversal is only
      * performed once.
      *
-     * @var \RecursiveIteratorIterator
+     * @var \RecursiveIteratorIterator<\RecursiveDirectoryIterator>
      */
     private \RecursiveIteratorIterator $file_iterator;
 
