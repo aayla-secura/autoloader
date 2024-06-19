@@ -1,10 +1,9 @@
 <?php
 
 /**
- * @package SlimInteractions
+ * @package Autoloader
  * @author  Aayla Secura <aayla.secura.1138@gmail.com>
  * @license EULA + GPLv2
- * @link    TODO
  *
  * Autoloader based on https://github.com/Nilpo/autoloader
  */
