@@ -208,6 +208,9 @@ class Autoloader
         }
 
         foreach ($this->file_iterator as $file) {
+            /**
+             * @var \RecursiveDirectoryIterator $file
+             */
             $name_to_compare = strtolower($file->getFilename());
             if ($this->uses_namespaces) {
                 $curr_path = $this->file_iterator->getSubPath();
