@@ -5,7 +5,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
-include 'classes/Autoloader.php';
+require_once 'classes/Autoloader.php';
 $autoloader = new Autoloader();
 $autoloader->use_namespaces(true);
 $autoloader->use_snake_case(true);

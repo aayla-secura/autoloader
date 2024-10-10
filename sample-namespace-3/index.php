@@ -5,9 +5,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
-include 'classes/Autoloader.php';
-use NS\Autoloader;
-
+require_once 'classes/Autoloader.php';
 $autoloader = new Autoloader();
 $autoloader->use_namespaces();
 spl_autoload_register(array($autoloader, 'loader'));

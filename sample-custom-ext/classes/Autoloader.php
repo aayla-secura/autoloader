@@ -75,9 +75,9 @@ class Autoloader
      * A placeholder to hold the file iterator so that directory traversal is only
      * performed once.
      *
-     * @var RecursiveIteratorIterator<RecursiveDirectoryIterator>
+     * @var \RecursiveIteratorIterator<\RecursiveDirectoryIterator>
      */
-    private RecursiveIteratorIterator $file_iterator;
+    private \RecursiveIteratorIterator $file_iterator;
 
     /**
      * Sets the extension for filenames to examine. Must include the leading
@@ -155,9 +155,14 @@ class Autoloader
     {
         $tr_class_name = $class_name;
         if ($this->uses_snake_case) {
-            $tr_class_name = strtolower(
-                preg_replace('/([A-Za-z])([A-Z](?=[a-z]))/', '$1_$2', $tr_class_name)
+            $tr_class_name = preg_replace(
+                '/([A-Za-z])([A-Z](?=[a-z]))/',
+                '$1_$2',
+                $tr_class_name
             );
+            if ($tr_class_name === null) {
+                return;
+            }
         }
 
         if ($this->underscore_to_dash) {
@@ -180,23 +185,25 @@ class Autoloader
                 $idx = 1;
             }
 
-            $file_needed = strtolower(implode(
-                DIRECTORY_SEPARATOR,
-                array_slice($cls_parts, $idx)
-            ) . $this->file_ext);
+            $file_needed = strtolower(
+                implode(
+                    DIRECTORY_SEPARATOR,
+                    array_slice($cls_parts, $idx)
+                ) . $this->file_ext
+            );
         } else {
             $file_needed = strtolower($this->file_prefix . $tr_class_name . $this->file_ext);
         }
 
-        $directory = new RecursiveDirectoryIterator(
+        $directory = new \RecursiveDirectoryIterator(
             $this->top_dir,
-            RecursiveDirectoryIterator::SKIP_DOTS
+            \RecursiveDirectoryIterator::SKIP_DOTS
         );
 
         if (!isset($this->file_iterator)) {
-            $this->file_iterator = new RecursiveIteratorIterator(
+            $this->file_iterator = new \RecursiveIteratorIterator(
                 $directory,
-                RecursiveIteratorIterator::LEAVES_ONLY
+                \RecursiveIteratorIterator::LEAVES_ONLY
             );
         }
 
@@ -211,7 +218,7 @@ class Autoloader
 
             if ($file_needed === $name_to_compare) {
                 if ($file->isReadable()) {
-                    require_once $file->getPathname();
+                    include_once $file->getPathname();
 
                 }
                 return;

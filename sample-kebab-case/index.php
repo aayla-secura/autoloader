@@ -5,7 +5,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
-include 'classes/Autoloader.php';
+require_once 'classes/Autoloader.php';
 $autoloader = new Autoloader();
 $autoloader->use_snake_case(true);
 spl_autoload_register(array($autoloader, 'loader'));
