@@ -1,4 +1,5 @@
-Fork of https://github.com/Nilpo/autoloader
+Fork of https://github.com/Nilpo/autoloader with added options for how to
+transform filenames and support for namespaces. See samples.
 
 autoloader
 ==========
