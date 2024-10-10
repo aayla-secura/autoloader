@@ -250,7 +250,7 @@ class Autoloader
      *
      * @return string
      */
-    private function parts_to_filename(array $sym_parts)
+    private function parts_to_filename(array $sym_parts): string
     {
         return strtolower(
             implode(
