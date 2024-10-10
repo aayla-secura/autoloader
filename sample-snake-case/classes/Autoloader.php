@@ -85,6 +85,8 @@ class Autoloader
      * dot.
      *
      * @param string $dir
+     *
+     * @return void
      */
     public function set_top_dir(string $dir): void
     {
@@ -95,6 +97,8 @@ class Autoloader
      * Sets the extension for filenames to examine.
      *
      * @param string $ext
+     *
+     * @return void
      */
     public function set_file_ext(string $ext): void
     {
@@ -107,6 +111,8 @@ class Autoloader
      * Equivalent to set_file_prefixes([$prefix])
      *
      * @param string $prefix
+     *
+     * @return void
      */
     public function set_file_prefix(string $prefix): void
     {
@@ -117,6 +123,8 @@ class Autoloader
      * Sets the prefixes for filenames to examine.
      *
      * @param array<string> $prefixes
+     *
+     * @return void
      */
     public function set_file_prefixes(array $prefixes): void
     {
@@ -128,6 +136,8 @@ class Autoloader
      * snake_case.
      *
      * @param bool $use_dashes
+     *
+     * @return void
      */
     public function use_snake_case(bool $use_dashes = false): void
     {
@@ -139,6 +149,8 @@ class Autoloader
 
     /**
      * Replaces underscores with dashes in symbol names.
+     *
+     * @return void
      */
     public function use_dash_for_underscore(): void
     {
@@ -149,6 +161,8 @@ class Autoloader
      * Requires the use of namespaces.
      *
      * @param bool $strip_root
+     *
+     * @return void
      */
     public function use_namespaces(bool $strip_root = false): void
     {
@@ -163,6 +177,8 @@ class Autoloader
      * on filename match.
      *
      * @param string $sym_name
+     *
+     * @return void
      */
     public function loader(string $sym_name): void
     {
