@@ -32,17 +32,18 @@ class Autoloader
     private string $file_ext = '.php';
 
     /**
-     * A prefix to require for each filename and ignore in comparison.
-     * E.g. if set to "class-" then only filenames starting with "class-" will
-     * be considered, and "class-" will be stripped from the beginning of the
-     * filename before comparing with class name.
+     * A list of prefixes, one of which to require for each filename and ignore
+     * in comparison.
+     * E.g. if set to ["class-", "trait-"] then only filenames starting with
+     * "class-" OR "trait-" will be considered, and "class-" will be stripped
+     * from the beginning of the filename before comparing with symbol name.
      *
-     * @var string
+     * @var array<string>
      */
-    private string $file_prefix = "";
+    private array $file_prefixes = [];
 
     /**
-     * If true, class names are expected to be in camelCase or PascalCase and
+     * If true, symbol names are expected to be in camelCase or PascalCase and
      * are converted to snake_case before filename comparison.
      *
      * @var bool
@@ -50,7 +51,7 @@ class Autoloader
     private bool $uses_snake_case = false;
 
     /**
-     * If true, underscores in resulting class names (after possibly converting
+     * If true, underscores in resulting symbol names (after possibly converting
      * to snake_case) are replaced with dashes.
      *
      * @var bool
@@ -58,7 +59,7 @@ class Autoloader
     private bool $underscore_to_dash = false;
 
     /**
-     * Whether to require classes to have namespaces.
+     * Whether to require files to have namespaces.
      *
      * @var bool
      */
@@ -103,15 +104,27 @@ class Autoloader
     /**
      * Sets the prefix for filenames to examine.
      *
+     * Equivalent to set_file_prefixes([$prefix])
+     *
      * @param string $prefix
      */
     public function set_file_prefix(string $prefix): void
     {
-        $this->file_prefix = strtolower($prefix);
+        $this->set_file_prefixes([$prefix]);
     }
 
     /**
-     * Assumes class names are camelCase or PascalCase and converts them to
+     * Sets the prefixes for filenames to examine.
+     *
+     * @param array<string> $prefixes
+     */
+    public function set_file_prefixes(array $prefixes): void
+    {
+        $this->file_prefixes = array_map(fn ($p) => strtolower($p), $prefixes);
+    }
+
+    /**
+     * Assumes symbol names are camelCase or PascalCase and converts them to
      * snake_case.
      *
      * @param bool $use_dashes
@@ -125,7 +138,7 @@ class Autoloader
     }
 
     /**
-     * Replaces underscores with dashes in class names.
+     * Replaces underscores with dashes in symbol names.
      */
     public function use_dash_for_underscore(): void
     {
@@ -146,53 +159,56 @@ class Autoloader
     /**
      * Autoload function for registration with spl_autoload_register
      *
-     * Looks recursively through project directory and loads class files based on
-     * filename match.
+     * Looks recursively through project directory and loads symbol files based
+     * on filename match.
      *
-     * @param string $class_name
+     * @param string $sym_name
      */
-    public function loader(string $class_name): void
+    public function loader(string $sym_name): void
     {
-        $tr_class_name = $class_name;
+        $tr_sym_name = $sym_name;
         if ($this->uses_snake_case) {
-            $tr_class_name = preg_replace(
+            $tr_sym_name = preg_replace(
                 '/([A-Za-z])([A-Z](?=[a-z]))/',
                 '$1_$2',
-                $tr_class_name
+                $tr_sym_name
             );
-            if ($tr_class_name === null) {
+            if ($tr_sym_name === null) {
                 return;
             }
         }
 
         if ($this->underscore_to_dash) {
-            $tr_class_name = str_replace('_', '-', $tr_class_name);
+            $tr_sym_name = str_replace('_', '-', $tr_sym_name);
         }
 
+        $files_needed = [];
         if ($this->uses_namespaces) {
-            // We're using namespaces, so the relative path is the class name.
+            // We're using namespaces, so the relative path is the symbol name.
             // However we can't just load it straight away as filesystem may be
             // case sensitive.
-            $cls_parts = explode('\\', $tr_class_name);
-            if (count($cls_parts) < 2) {
+            $sym_parts = explode('\\', $tr_sym_name);
+            if (count($sym_parts) < 2) {
                 return;
             }
 
-            $cls_parts[count($cls_parts) - 1] = $this->file_prefix . $cls_parts[count($cls_parts) - 1];
-
-            $idx = 0;
             if ($this->strip_root_namespace) {
-                $idx = 1;
+                $sym_parts = array_slice($sym_parts, 1);
             }
 
-            $file_needed = strtolower(
-                implode(
-                    DIRECTORY_SEPARATOR,
-                    array_slice($cls_parts, $idx)
-                ) . $this->file_ext
+            $last_idx = count($sym_parts) - 1;
+            $files_needed = array_map(
+                fn ($pref) => $this->parts_to_filename(
+                    // Prepend the file prefix to the last part which will become the base filename
+                    array_replace($sym_parts, [$last_idx => $pref . $sym_parts[$last_idx]])
+                ),
+                $this->file_prefixes ? $this->file_prefixes : [""]
             );
         } else {
-            $file_needed = strtolower($this->file_prefix . $tr_class_name . $this->file_ext);
+            $files_needed = array_map(
+                fn ($pref) => strtolower($pref . $tr_sym_name . $this->file_ext),
+                $this->file_prefixes ? $this->file_prefixes : [""]
+            );
         }
 
         $directory = new \RecursiveDirectoryIterator(
@@ -219,7 +235,7 @@ class Autoloader
                 }
             }
 
-            if ($file_needed === $name_to_compare) {
+            if (in_array($name_to_compare, $files_needed)) {
                 if ($file->isReadable()) {
                     include_once $file->getPathname();
 
@@ -227,5 +243,20 @@ class Autoloader
                 return;
             }
         }
+    }
+
+    /**
+     * @param array<string> $sym_parts
+     *
+     * @return string
+     */
+    private function parts_to_filename(array $sym_parts)
+    {
+        return strtolower(
+            implode(
+                DIRECTORY_SEPARATOR,
+                $sym_parts
+            ) . $this->file_ext
+        );
     }
 }
