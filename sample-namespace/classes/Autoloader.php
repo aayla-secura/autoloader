@@ -5,6 +5,7 @@
  * @package Autoloader
  * @author  Aayla Secura <aayla.secura.1138@gmail.com>
  * @license EULA + GPLv2
+ * @link    https://github.com/aayla-secura/autoloader
  */
 
 declare(strict_types=1);
