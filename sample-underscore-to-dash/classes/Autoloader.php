@@ -1,11 +1,10 @@
 <?php
-
 /**
+ * Autoloader based on https://github.com/Nilpo/autoloader
+ *
  * @package Autoloader
  * @author  Aayla Secura <aayla.secura.1138@gmail.com>
  * @license EULA + GPLv2
- *
- * Autoloader based on https://github.com/Nilpo/autoloader
  */
 
 declare(strict_types=1);
